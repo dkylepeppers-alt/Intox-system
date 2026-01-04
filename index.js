@@ -130,7 +130,8 @@ function resetPatterns() {
 function processMessage(text, isUserMessage) {
  if (!settings.enabled || !text) return;
 
- resetPatterns();
+ try {
+  resetPatterns();
 
  let drinksAdded = 0;
  let arousalAdded = 0;
@@ -155,10 +156,10 @@ function processMessage(text, isUserMessage) {
  resetPatterns();
 
  if (hoursElapsed > 0) {
- const reduction = hoursElapsed * 1;*
+ const reduction = hoursElapsed * 1;
  const oldDrinks = settings.drinks;
  settings.drinks = Math.max(0, settings.drinks - reduction);
- settings.arousal = Math.max(0, settings.arousal - (hoursElapsed * 0.5));*
+ settings.arousal = Math.max(0, settings.arousal - (hoursElapsed * 0.5));
  if (hoursElapsed >= 2) settings.hasEaten = false;
  console.log(`[Intox] ${hoursElapsed}h passed. Drinks: ${oldDrinks.toFixed(1)} -> ${settings.drinks.toFixed(1)}`);
  }
@@ -178,8 +179,8 @@ function processMessage(text, isUserMessage) {
  for (const pattern of patterns.drinks.multiple) {
  const matches = text.match(pattern.regex);
  if (matches) {
- drinksAdded += matches.length * pattern.value;*
- console.log(`[Intox] Multiple drinks detected: +${matches.length * pattern.value}`);*
+ drinksAdded += matches.length * pattern.value;
+ console.log(`[Intox] Multiple drinks detected: +${matches.length * pattern.value}`);
  }
  }
 
@@ -187,24 +188,24 @@ function processMessage(text, isUserMessage) {
  for (const pattern of patterns.drinks.strong) {
  const matches = text.match(pattern.regex);
  if (matches) {
- drinksAdded += matches.length * pattern.value;*
- console.log(`[Intox] Strong drink detected: +${matches.length * pattern.value}`);*
+ drinksAdded += matches.length * pattern.value;
+ console.log(`[Intox] Strong drink detected: +${matches.length * pattern.value}`);
  }
  }
 
  for (const pattern of patterns.drinks.standard) {
  const matches = text.match(pattern.regex);
  if (matches) {
- drinksAdded += matches.length * pattern.value;*
- console.log(`[Intox] Standard drink detected: +${matches.length * pattern.value}`);*
+ drinksAdded += matches.length * pattern.value;
+ console.log(`[Intox] Standard drink detected: +${matches.length * pattern.value}`);
  }
  }
  }
 
  if (drinksAdded > 0) {
- drinksAdded *= drinkModifier;*
+ drinksAdded *= drinkModifier;
  if (settings.hasEaten) {
- drinksAdded *= 0.75;*
+ drinksAdded *= 0.75;
  console.log("[Intox] Food buffer applied");
  }
  settings.drinks += drinksAdded;
@@ -213,14 +214,14 @@ function processMessage(text, isUserMessage) {
  }
 
  const currentTier = getTier(settings.drinks);
- const arousalMultiplier = 1 + (currentTier.level * 0.3);*
+ const arousalMultiplier = 1 + (currentTier.level * 0.3);
 
  for (const [type, pattern] of Object.entries(patterns.arousal)) {
  const matches = text.match(pattern);
  if (matches) {
- const baseArousal = matches.length * 0.5;*
- arousalAdded += baseArousal * arousalMultiplier;*
- console.log(`[Intox] Arousal trigger (${type}): +${(baseArousal * arousalMultiplier).toFixed(2)}`);*
+ const baseArousal = matches.length * 0.5;
+ arousalAdded += baseArousal * arousalMultiplier;
+ console.log(`[Intox] Arousal trigger (${type}): +${(baseArousal * arousalMultiplier).toFixed(2)}`);
  }
  }
 
@@ -231,6 +232,9 @@ function processMessage(text, isUserMessage) {
 
  saveSettingsDebounced();
  updateDisplay();
+ } catch (error) {
+  console.error("[Intox] Error processing message:", error);
+ }
 }
 
 function slurSpeech(text, tierLevel) {
@@ -262,7 +266,7 @@ function slurSpeech(text, tierLevel) {
  result = result.replace(/([bdfglmnprst])/gi, function(m) {
  return Math.random() > 0.75 ? m + m : m;
  });
- result = result.replace(/\.\s*/g, function(m) {*
+ result = result.replace(/\.\s*/g, function(m) {
  return Math.random() > 0.7 ? "… " : m;
  });
  }
@@ -273,7 +277,7 @@ function slurSpeech(text, tierLevel) {
  const chars = match.split("");
  for (let i = chars.length - 1; i > 1; i--) {
  if (Math.random() > 0.6) {
- const j = Math.floor(Math.random() * i);*
+ const j = Math.floor(Math.random() * i);
  [chars[i], chars[j]] = [chars[j], chars[i]];
  }
  }
@@ -281,10 +285,10 @@ function slurSpeech(text, tierLevel) {
  }
  return match;
  });
- result = result.replace(/\.\s*/g, function(m) {*
+ result = result.replace(/\.\s*/g, function(m) {
  return Math.random() > 0.4 ? "…*hic* " : m;
  });
- result = result.replace(/,\s*/g, function(m) {*
+ result = result.replace(/,\s*/g, function(m) {
  return Math.random() > 0.6 ? "… " : m;
  });
  }
@@ -302,7 +306,7 @@ function generateLaughter(tierLevel) {
  };
 
  const tierOptions = options[tierLevel] || [""];
- return tierOptions[Math.floor(Math.random() * tierOptions.length)];*
+ return tierOptions[Math.floor(Math.random() * tierOptions.length)];
 }
 
 function getArousalDescription() {
@@ -500,20 +504,32 @@ window.IntoxSystem = {
  },
  getInjection: generatePromptInjection,
  slur: function(text) {
- return slurSpeech(text, getTier(settings.drinks).level);
+  if (typeof text !== 'string') {
+   console.warn("[Intox] slur() requires a string argument");
+   return text;
+  }
+  return slurSpeech(text, getTier(settings.drinks).level);
  },
  laugh: function() {
  return generateLaughter(getTier(settings.drinks).level);
  },
  addDrinks: function(n) {
- settings.drinks += n;
- updateDisplay();
- saveSettingsDebounced();
+  if (typeof n !== 'number' || isNaN(n)) {
+   console.warn("[Intox] addDrinks() requires a numeric argument");
+   return;
+  }
+  settings.drinks = Math.max(0, settings.drinks + n);
+  updateDisplay();
+  saveSettingsDebounced();
  },
  setArousal: function(n) {
- settings.arousal = Math.min(10, Math.max(0, n));
- updateDisplay();
- saveSettingsDebounced();
+  if (typeof n !== 'number' || isNaN(n)) {
+   console.warn("[Intox] setArousal() requires a numeric argument");
+   return;
+  }
+  settings.arousal = Math.min(10, Math.max(0, n));
+  updateDisplay();
+  saveSettingsDebounced();
  },
  reset: function() {
  settings.drinks = 0;

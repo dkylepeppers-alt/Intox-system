@@ -22,3 +22,32 @@ A SillyTavern extension that tracks intoxication and arousal levels through rege
 ## Console Commands
 
 Access via browser console:
+
+```javascript
+// Get current state
+window.IntoxSystem.getState();
+
+// Get current intoxication tier
+window.IntoxSystem.getTier();
+
+// Get prompt injection text
+window.IntoxSystem.getInjection();
+
+// Slur text based on current intoxication level
+window.IntoxSystem.slur("Hello, how are you?");
+
+// Generate laughter based on current level
+window.IntoxSystem.laugh();
+
+// Add drinks manually
+window.IntoxSystem.addDrinks(2);
+
+// Set arousal level (0-10)
+window.IntoxSystem.setArousal(5);
+
+// Set food buffer status
+window.IntoxSystem.setEaten(true);
+
+// Reset all values to zero
+window.IntoxSystem.reset();
+```
