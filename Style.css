@@ -1,0 +1,54 @@
+.intox-settings {
+ margin: 10px 0;
+}
+
+.intox-controls {
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ padding: 10px;
+}
+
+.intox-stat {
+ display: flex;
+ flex-direction: column;
+ gap: 5px;
+}
+
+.intox-stat label {
+ font-size: 0.9em;
+}
+
+.intox-stat input[type="range"] {
+ width: 100%;
+}
+
+.intox-tier {
+ padding: 8px;
+ background: var(--SmartThemeBlurTintColor);
+ border-radius: 5px;
+ text-align: center;
+}
+
+.intox-buttons {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 5px;
+}
+
+.intox-buttons .menu_button {
+ padding: 5px 10px;
+ font-size: 0.85em;
+}
+
+.intox-info {
+ padding: 8px;
+ background: var(--SmartThemeBlurTintColor);
+ border-radius: 5px;
+ font-style: italic;
+}
+
+.intox-info small {
+ display: block;
+ line-height: 1.4;
+}
