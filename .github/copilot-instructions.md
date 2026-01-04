@@ -158,11 +158,16 @@ Lines 62-108 define 5 tiers (levels 0-4) with:
 **Problem**: Lines with multiplication operators like `hoursElapsed * 1` may look suspicious  
 **Context**: These are intentional for clarity (line 158, 161, 181, etc.)
 
+### Issue: Filename Case Mismatch
+**Problem**: Manifest.json references `index.js` and `style.css` (lowercase) but actual files are `Index.js` and `Style.css` (capitalized)  
+**Impact**: Works on case-insensitive filesystems (Windows, macOS) but may fail on Linux  
+**Solution**: This is a pre-existing condition - maintain current casing when editing files
+
 ### Issue: Extension Not Loading
 **Problem**: Extension fails to load in SillyTavern  
 **Check**: 
 - Verify `extensionFolderPath` matches actual install location (line 5)
-- Confirm Manifest.json references correct files (`index.js`, `style.css`)
+- Note: Manifest.json references `index.js`/`style.css` but files are `Index.js`/`Style.css`
 - Check browser console for import errors from lines 1-2
 
 ### Issue: Settings Not Persisting
